@@ -10,9 +10,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "hapi": "^18.1.0",
     "hapi-auth-jwt": "^4.0.0",
     "jsonwebtoken": "^8.5.0",
     "knex": "^0.16.3",
     "pg": "^7.8.1"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0",
+    "nodemon": "^1.18.10"
   }
 }
