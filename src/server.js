@@ -3,13 +3,14 @@ import Knex from './knex';
 
 const init = async () => {
   const server = new Hapi.Server({
-    port: 8080,
+    port: 5000,
   });
 
   await server.register(require('hapi-auth-jwt2'));
 
   server.auth.strategy('jwt', 'jwt', {
     key: 'vZiYpmTzqXMp8PpYXKwqc9ShQ1UhyAfy',
+    validate: () => {},
     verifyOptions: { algorithms: ['HS256'] },
   });
 
