@@ -1,34 +1,61 @@
 import Hapi from 'hapi';
 import Knex from './knex';
 
-const server = new Hapi.Server();
+const init = async () => {
+  const server = new Hapi.Server({
+    port: 8080,
+  });
 
-server.connection({
-  port: 8080,
-});
+  await server.register(require('hapi-auth-jwt2'));
 
-server.register(require('hapi-auth-jwt'), err => {
-  server.auth.strategy('token', 'jwt', {
+  server.auth.strategy('jwt', 'jwt', {
     key: 'vZiYpmTzqXMp8PpYXKwqc9ShQ1UhyAfy',
-    verifyOptions: {
-      algorithms: ['HS256'],
+    verifyOptions: { algorithms: ['HS256'] },
+  });
+
+  server.auth.default('jwt');
+
+  // Routes
+
+  server.route({
+    path: '/birds',
+    method: 'GET',
+    handler: (request, reply) => {
+      const getOperation = Knex('birds')
+        .where({
+          isPublic: true,
+        })
+        .select('name', 'species', 'picture_url')
+        .then(results => {
+          if (!results || results.length === 0) {
+            reply({
+              error: true,
+              message: 'No public bird found!',
+            });
+          }
+          reply({
+            count: results.length,
+            data,
+          });
+        })
+        .catch(error => {
+          reply({
+            error: true,
+            error,
+            message: 'An error occurred',
+          });
+        });
     },
   });
-});
 
-server.start(err, () => {
-  if (err) {
-    // Fancy error handling here
-    console.error('Error was handled!');
-    console.error(err);
-  }
-  console.log(`Server started on PORT ${server.info.uri}`);
-});
+  await server.start();
+  return server;
+};
 
-server.route({
-  path: '/birds',
-  method: 'GET',
-  handler: (request, reply) => {
-    //
-  },
-});
+init()
+  .then(server => {
+    console.log(`Server started on PORT ${server.info.uri}`);
+  })
+  .catch(error => {
+    console.log(`Error ${error}`);
+  });
