@@ -6,15 +6,15 @@ const init = async () => {
     port: 5000,
   });
 
-  // await server.register(require('hapi-auth-jwt2'));
+  await server.register(require('hapi-auth-jwt2'));
 
-  // server.auth.strategy('jwt', 'jwt', {
-  //   key: 'vZiYpmTzqXMp8PpYXKwqc9ShQ1UhyAfy',
-  //   validate: () => {},
-  //   verifyOptions: { algorithms: ['HS256'] },
-  // });
+  server.auth.strategy('jwt', 'jwt', {
+    key: 'vZiYpmTzqXMp8PpYXKwqc9ShQ1UhyAfy',
+    validate: () => {},
+    verifyOptions: { algorithms: ['HS256'] },
+  });
 
-  // server.auth.default('jwt');
+  server.auth.default('jwt');
 
   // Routes
 
@@ -40,7 +40,7 @@ const init = async () => {
         return h
           .response({
             count: results.length,
-            data,
+            results,
           })
           .code(200);
       } catch (error) {
@@ -52,6 +52,12 @@ const init = async () => {
           .code(500);
       }
     },
+  });
+
+  server.route({
+    path: '/auth',
+    method: 'POST',
+    handler: async (request, h) => {},
   });
 
   await server.start();

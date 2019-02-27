@@ -4,7 +4,10 @@ module.exports = {
   development: {
     client: 'pg',
     connection: {
-      filename: 'postgres://localhost/birdbase',
+      // filename: 'postgres://localhost/birdbase',
+      database: 'birdbase',
+      user: 'rotimi',
+      password: '',
     },
     migrations: {
       directory: './db/migrations',
