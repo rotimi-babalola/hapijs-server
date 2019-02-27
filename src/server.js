@@ -57,7 +57,9 @@ const init = async () => {
   server.route({
     path: '/auth',
     method: 'POST',
-    handler: async (request, h) => {},
+    handler: async (request, h) => {
+      const { username, password } = request.payload;
+    },
   });
 
   await server.start();
@@ -65,9 +67,11 @@ const init = async () => {
 };
 
 init()
-  .then(server => {
+  .then((server) => {
+    // eslint-disable-next-line no-console
     console.log(`Server started on PORT ${server.info.uri}`);
   })
-  .catch(error => {
+  .catch((error) => {
+    // eslint-disable-next-line no-console
     console.log(`Error ${error}`);
   });
