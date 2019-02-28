@@ -6,6 +6,7 @@ const init = async () => {
     port: 5000,
   });
 
+  // eslint-disable-next-line global-require
   await server.register(require('hapi-auth-jwt2'));
 
   server.auth.strategy('jwt', 'jwt', {
@@ -59,6 +60,53 @@ const init = async () => {
     method: 'POST',
     handler: async (request, h) => {
       const { username, password } = request.payload;
+      try {
+        const user = await Knex('users')
+          .where({
+            username,
+          })
+          .select('guid', 'password');
+        if (!user) {
+          return h
+            .response({
+              error: true,
+              message: 'User not found',
+            })
+            .code(404);
+        }
+        // TODO: hash user's password and compare to payload
+        if (user.password === password) {
+          const token = jwt.sign(
+            {
+              username,
+              scope: user.guid,
+            },
+            'vZiYpmTzqXMp8PpYXKwqc9ShQ1UhyAfy',
+            {
+              algorithm: 'HS2556',
+              expiresIn: '1h',
+            },
+          );
+          return h
+            .response({
+              token,
+              scope: user.guid,
+            })
+            .code(200);
+        }
+        return h
+          .response({
+            message: 'Incorrect password',
+          })
+          .code(401);
+      } catch (error) {
+        return h
+          .response({
+            error,
+            message: 'An error occurred',
+          })
+          .code(500);
+      }
     },
   });
 
