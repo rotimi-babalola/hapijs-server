@@ -1,4 +1,5 @@
 import Hapi from 'hapi';
+import jwt from 'jsonwebtoken';
 import Knex from './knex';
 
 const init = async () => {
@@ -23,7 +24,6 @@ const init = async () => {
     path: '/birds',
     method: 'GET',
     handler: async (request, h) => {
-      // console.log(await Knex('birds'), '>>>');
       try {
         const results = await Knex('birds')
           .where({
@@ -58,6 +58,9 @@ const init = async () => {
   server.route({
     path: '/auth',
     method: 'POST',
+    config: {
+      auth: false,
+    },
     handler: async (request, h) => {
       const { username, password } = request.payload;
       try {
@@ -65,7 +68,9 @@ const init = async () => {
           .where({
             username,
           })
-          .select('guid', 'password');
+          .select('guid', 'password')
+          .first();
+
         if (!user) {
           return h
             .response({
@@ -74,6 +79,7 @@ const init = async () => {
             })
             .code(404);
         }
+
         // TODO: hash user's password and compare to payload
         if (user.password === password) {
           const token = jwt.sign(
@@ -83,7 +89,7 @@ const init = async () => {
             },
             'vZiYpmTzqXMp8PpYXKwqc9ShQ1UhyAfy',
             {
-              algorithm: 'HS2556',
+              algorithm: 'HS256',
               expiresIn: '1h',
             },
           );
@@ -94,6 +100,7 @@ const init = async () => {
             })
             .code(200);
         }
+
         return h
           .response({
             message: 'Incorrect password',
