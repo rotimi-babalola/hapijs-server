@@ -1,4 +1,5 @@
 import Hapi from 'hapi';
+import jwt from 'jsonwebtoken';
 import Knex from './knex';
 
 const init = async () => {
@@ -6,6 +7,7 @@ const init = async () => {
     port: 5000,
   });
 
+  // eslint-disable-next-line global-require
   await server.register(require('hapi-auth-jwt2'));
 
   server.auth.strategy('jwt', 'jwt', {
@@ -22,7 +24,6 @@ const init = async () => {
     path: '/birds',
     method: 'GET',
     handler: async (request, h) => {
-      // console.log(await Knex('birds'), '>>>');
       try {
         const results = await Knex('birds')
           .where({
@@ -57,7 +58,63 @@ const init = async () => {
   server.route({
     path: '/auth',
     method: 'POST',
-    handler: async (request, h) => {},
+    config: {
+      auth: false,
+    },
+    handler: async (request, h) => {
+      const { username, password } = request.payload;
+      try {
+        const user = await Knex('users')
+          .where({
+            username,
+          })
+          .select('guid', 'password')
+          .first();
+
+        if (!user) {
+          return h
+            .response({
+              error: true,
+              message: 'User not found',
+            })
+            .code(404);
+        }
+
+        // TODO: hash user's password and compare to payload
+        if (user.password === password) {
+          const token = jwt.sign(
+            {
+              username,
+              scope: user.guid,
+            },
+            'vZiYpmTzqXMp8PpYXKwqc9ShQ1UhyAfy',
+            {
+              algorithm: 'HS256',
+              expiresIn: '1h',
+            },
+          );
+          return h
+            .response({
+              token,
+              scope: user.guid,
+            })
+            .code(200);
+        }
+
+        return h
+          .response({
+            message: 'Incorrect password',
+          })
+          .code(401);
+      } catch (error) {
+        return h
+          .response({
+            error,
+            message: 'An error occurred',
+          })
+          .code(500);
+      }
+    },
   });
 
   await server.start();
@@ -65,9 +122,11 @@ const init = async () => {
 };
 
 init()
-  .then(server => {
+  .then((server) => {
+    // eslint-disable-next-line no-console
     console.log(`Server started on PORT ${server.info.uri}`);
   })
-  .catch(error => {
+  .catch((error) => {
+    // eslint-disable-next-line no-console
     console.log(`Error ${error}`);
   });
