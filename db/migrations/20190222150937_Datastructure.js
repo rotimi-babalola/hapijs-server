@@ -1,6 +1,7 @@
-exports.up = (knex, Promise) => {
-  return knex.schema
-    .createTable('users', userTable => {
+exports.up = (knex) =>
+  // eslint-disable-next-line implicit-arrow-linebreak
+  knex.schema
+    .createTable('users', (userTable) => {
       // Primary key
       userTable.increments();
 
@@ -25,7 +26,7 @@ exports.up = (knex, Promise) => {
         .notNullable()
         .defaultTo(knex.fn.now());
     })
-    .createTable('birds', birdsTable => {
+    .createTable('birds', (birdsTable) => {
       // primary key
       birdsTable.increments();
       birdsTable
@@ -51,8 +52,7 @@ exports.up = (knex, Promise) => {
         .notNullable()
         .defaultTo(knex.fn.now());
     });
-};
 
-exports.down = (knex, Promise) => {
-  return knex.schema.dropTableIfExists('birds').dropTableIfExists('users');
-};
+exports.down = (knex) =>
+  // eslint-disable-next-line implicit-arrow-linebreak
+  knex.schema.dropTableIfExists('birds').dropTableIfExists('users');
