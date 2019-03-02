@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import uuid from 'uuid/v1';
 import { verifyUniqueUser } from '../../utils/verifyUniqueUser';
 import { createToken } from '../../utils/createToken';
+import createUserSchema from '../schemas/createUserSchema';
 import Knex from '../../src/knex';
 
 module.exports = [
@@ -74,6 +75,9 @@ module.exports = [
     config: {
       auth: false,
       pre: [{ method: verifyUniqueUser }],
+      validate: {
+        payload: createUserSchema,
+      },
     },
     handler: async (request, h) => {
       // eslint-disable-next-line object-curly-newline
@@ -93,7 +97,7 @@ module.exports = [
 
         return h
           .response({
-            token: createToken(createdUser),
+            token: createToken(createdUser[0]),
           })
           .code(201);
       } catch (error) {
