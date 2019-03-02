@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-// import Boom from 'boom';
 import bcrypt from 'bcrypt';
 import uuid from 'uuid/v1';
 import { verifyUniqueUser } from '../../utils/verifyUniqueUser';
