@@ -1,4 +1,9 @@
 import jwt from 'jsonwebtoken';
+// import Boom from 'boom';
+import bcrypt from 'bcrypt';
+import uuid from 'uuid/v1';
+import { verifyUniqueUser } from '../../utils/verifyUniqueUser';
+import { createToken } from '../../utils/createToken';
 import Knex from '../../src/knex';
 
 module.exports = [
@@ -68,9 +73,37 @@ module.exports = [
     path: '/auth/signup',
     config: {
       auth: false,
+      pre: [{ method: verifyUniqueUser }],
     },
     handler: async (request, h) => {
-      //
+      // eslint-disable-next-line object-curly-newline
+      const { name, username, email, password } = request.payload;
+      const guid = uuid();
+      const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+      try {
+        const createdUser = await Knex('users')
+          .returning(['name', 'username', 'email', 'guid'])
+          .insert({
+            name,
+            username,
+            email,
+            password: hashedPassword,
+            guid,
+          });
+
+        return h
+          .response({
+            token: createToken(createdUser),
+          })
+          .code(201);
+      } catch (error) {
+        return h
+          .response({
+            error,
+            message: 'An error occurred',
+          })
+          .code(500);
+      }
     },
   },
 ];
