@@ -1,8 +1,30 @@
 import Hapi from 'hapi';
 import dotenv from 'dotenv';
 import routes from '../api/routes';
+import Knex from './knex';
 
 dotenv.config();
+
+const validate = async (decoded) => {
+  // check if user exists in db
+  const user = await Knex('users')
+    .where({
+      guid: decoded.guid,
+    })
+    .first();
+
+  const credentials = decoded;
+  credentials.scope = decoded.guid;
+  if (user.name) {
+    return {
+      isValid: true,
+      credentials,
+    };
+  }
+  return {
+    isValid: false,
+  };
+};
 
 const init = async () => {
   const server = new Hapi.Server({
@@ -14,7 +36,7 @@ const init = async () => {
 
   server.auth.strategy('jwt', 'jwt', {
     key: process.env.SECRET_KEY,
-    validate: () => {},
+    validate,
     verifyOptions: { algorithms: ['HS256'] },
   });
 

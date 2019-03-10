@@ -50,7 +50,7 @@ module.exports = [
       } catch (error) {
         return h
           .response({
-            error,
+            error: error.toString(),
             message: 'An error occurred',
           })
           .code(500);
@@ -91,7 +91,7 @@ module.exports = [
       } catch (error) {
         return h
           .response({
-            error,
+            error: error.toString(),
             message: 'An error occurred',
           })
           .code(500);
