@@ -1,9 +1,9 @@
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import uuid from 'uuid/v1';
 import { verifyUniqueUser } from '../../utils/verifyUniqueUser';
 import { createToken } from '../../utils/createToken';
 import createUserSchema from '../schemas/createUserSchema';
+import verifyPassword from '../../utils/verifyPassword';
 import Knex from '../../src/knex';
 
 module.exports = [
@@ -16,14 +16,14 @@ module.exports = [
     handler: async (request, h) => {
       const { username, password } = request.payload;
       try {
-        const user = await Knex('users')
+        const foundUser = await Knex('users')
           .where({
             username,
           })
           .select('guid', 'password')
           .first();
 
-        if (!user) {
+        if (!foundUser) {
           return h
             .response({
               error: true,
@@ -32,23 +32,12 @@ module.exports = [
             .code(404);
         }
 
-        // TODO: hash user's password and compare to payload
-        if (user.password === password) {
-          const token = jwt.sign(
-            {
-              username,
-              scope: user.guid,
-            },
-            process.env.SECRET_KEY,
-            {
-              algorithm: 'HS256',
-              expiresIn: '1h',
-            },
-          );
+        if (verifyPassword(password, foundUser.password)) {
+          const token = createToken(foundUser);
           return h
             .response({
               token,
-              scope: user.guid,
+              scope: foundUser.guid,
             })
             .code(200);
         }
