@@ -25,7 +25,7 @@ export const verifyUniqueUser = async (request, h) => {
   } catch (error) {
     return h
       .response({
-        error,
+        error: error.toString(),
         message: 'An error occurred',
       })
       .code(500);
