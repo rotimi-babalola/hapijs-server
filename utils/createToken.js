@@ -12,5 +12,5 @@ export const createToken = ({ username, guid }) =>
       guid,
     },
     secret,
-    { expiresIn: '1h' },
+    { expiresIn: '12h' },
   );
