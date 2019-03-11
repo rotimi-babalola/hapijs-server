@@ -1,6 +1,6 @@
 import Knex from '../src/knex';
 
-export const verifyOwner = async (request, h) => {
+const verifyOwner = async (request, h) => {
   const { birdGuid } = request.params;
   const { scope } = request.auth.credentials;
   try {
@@ -22,7 +22,7 @@ export const verifyOwner = async (request, h) => {
     if (bird.owner !== scope) {
       return h
         .response({
-          message: 'You are not permitted to modify this bird',
+          message: 'You are not permitted to access this bird',
           error: true,
         })
         .code(403)

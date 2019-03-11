@@ -112,4 +112,43 @@ module.exports = [
       }
     },
   },
+  {
+    path: '/birds/{birdGuid}',
+    method: 'GET',
+    config: {
+      auth: {
+        strategy: 'jwt',
+      },
+      pre: [{ method: verifyOwner }],
+    },
+    handler: async (request, h) => {
+      const { birdGuid } = request.params;
+      try {
+        const bird = await Knex('birds')
+          .where({
+            guid: birdGuid,
+          })
+          .select('name', 'species', 'picture_url', 'isPublic');
+        if (!bird) {
+          return h
+            .response({
+              error: true,
+              message: 'Bird not found',
+            })
+            .code(404);
+        }
+        return h
+          .response({
+            data: bird,
+            message: 'Bird found',
+          })
+          .code(200);
+      } catch (error) {
+        return h.response({
+          error: error.toString(),
+          message: 'An error occurred',
+        });
+      }
+    },
+  },
 ];
