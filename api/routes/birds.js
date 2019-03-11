@@ -1,5 +1,6 @@
 import uuid from 'uuid/v1';
 import Knex from '../../src/knex';
+import verifyOwner from '../../utils/verifyOwner';
 
 module.exports = [
   {
@@ -70,6 +71,44 @@ module.exports = [
             message: 'An error occurred',
           })
           .code(500);
+      }
+    },
+  },
+  {
+    path: '/birds/{birdGuid}',
+    method: 'PUT',
+    config: {
+      auth: {
+        strategy: 'jwt',
+      },
+      pre: [{ method: verifyOwner }],
+    },
+    handler: async (request, h) => {
+      const { birdGuid } = request.params;
+      // eslint-disable-next-line camelcase
+      const { name, species, picture_url, isPublic } = request.payload;
+
+      try {
+        const updatedBird = await Knex('birds')
+          .where({
+            guid: birdGuid,
+          })
+          .returning(['name', 'species', 'picture_url', 'isPublic'])
+          .update({
+            name,
+            species,
+            picture_url,
+            isPublic,
+          });
+        return h.response({
+          data: updatedBird,
+          message: 'Bird successfully updated',
+        });
+      } catch (error) {
+        return h.response({
+          error: error.toString(),
+          message: 'An error occurred',
+        });
       }
     },
   },

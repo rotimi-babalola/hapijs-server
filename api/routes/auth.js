@@ -68,7 +68,6 @@ module.exports = [
       },
     },
     handler: async (request, h) => {
-      // eslint-disable-next-line object-curly-newline
       const { name, username, email, password } = request.payload;
       const guid = uuid();
       const hashedPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
