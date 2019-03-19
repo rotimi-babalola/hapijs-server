@@ -4,7 +4,7 @@ import verifyOwner from '../../utils/verifyOwner';
 
 module.exports = [
   {
-    path: '/birds',
+    path: '/api/v1/birds',
     method: 'GET',
     handler: async (request, h) => {
       try {
@@ -75,7 +75,7 @@ module.exports = [
     },
   },
   {
-    path: '/birds/{birdGuid}',
+    path: '/api/v1/birds/{birdGuid}',
     method: 'PUT',
     config: {
       auth: {
@@ -113,7 +113,7 @@ module.exports = [
     },
   },
   {
-    path: '/birds/{birdGuid}',
+    path: '/api/v1/birds/{birdGuid}',
     method: 'GET',
     config: {
       auth: {
@@ -154,7 +154,7 @@ module.exports = [
     },
   },
   {
-    path: '/birds/{birdGuid}',
+    path: '/api/v1/birds/{birdGuid}',
     method: 'DELETE',
     config: {
       auth: {
@@ -180,7 +180,7 @@ module.exports = [
         // delete bird
         bird.delete();
         return h.response({
-          //
+          message: 'Bird deleted!',
         });
       } catch (error) {
         return h

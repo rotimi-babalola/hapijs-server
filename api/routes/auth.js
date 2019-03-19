@@ -9,7 +9,7 @@ import Knex from '../../src/knex';
 module.exports = [
   {
     method: 'POST',
-    path: '/auth/signin',
+    path: '/api/v1/auth/signin',
     config: {
       auth: false,
     },
@@ -59,7 +59,7 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/auth/signup',
+    path: '/api/v1/auth/signup',
     config: {
       auth: false,
       pre: [{ method: verifyUniqueUser }],
