@@ -144,10 +144,51 @@ module.exports = [
           })
           .code(200);
       } catch (error) {
-        return h.response({
-          error: error.toString(),
-          message: 'An error occurred',
+        return h
+          .response({
+            error: error.toString(),
+            message: 'An error occurred',
+          })
+          .code(500);
+      }
+    },
+  },
+  {
+    path: '/birds/{birdGuid}',
+    method: 'DELETE',
+    config: {
+      auth: {
+        strategy: 'jwt',
+      },
+      pre: [{ method: verifyOwner }],
+    },
+    handler: async (request, h) => {
+      const { birdGuid } = request.params;
+      try {
+        const bird = await Knex('birds').where({
+          guid: birdGuid,
         });
+
+        if (!bird) {
+          return h
+            .response({
+              error: true,
+              message: 'Bird not found',
+            })
+            .code(404);
+        }
+        // delete bird
+        bird.delete();
+        return h.response({
+          //
+        });
+      } catch (error) {
+        return h
+          .response({
+            error: error.toString(),
+            message: 'An error occurred',
+          })
+          .code(500);
       }
     },
   },
