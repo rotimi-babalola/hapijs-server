@@ -1,1 +1,6 @@
 node_modules
+build/server.key
+build/server.crt
+rootCA.key
+rootCA.pem
+server.csr

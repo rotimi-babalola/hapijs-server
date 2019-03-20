@@ -1,5 +1,7 @@
 import Hapi from 'hapi';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 import routes from '../api/routes';
 import Knex from './knex';
 
@@ -29,6 +31,11 @@ const validate = async (decoded) => {
 const init = async () => {
   const server = new Hapi.Server({
     port: 5000,
+    tls: {
+      key: fs.readFileSync(path.resolve('build/server.key')),
+      cert: fs.readFileSync(path.resolve('build/server.crt')),
+    },
+    host: 'localhost',
   });
 
   // eslint-disable-next-line global-require
