@@ -35,6 +35,7 @@ const init = async () => {
       key: fs.readFileSync(path.resolve('build/server.key')),
       cert: fs.readFileSync(path.resolve('build/server.crt')),
     },
+    host: 'localhost',
   });
 
   // eslint-disable-next-line global-require
